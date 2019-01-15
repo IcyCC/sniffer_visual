@@ -102,6 +102,3 @@ venv.bak/
 
 # mypy
 .mypy_cache/
-visual_font/node_modules
-sniffer/bin
-.idea
