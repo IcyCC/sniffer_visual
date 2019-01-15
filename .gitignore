@@ -2,6 +2,7 @@
 __pycache__/
 *.py[cod]
 *$py.class
+.DS_Store
 
 # C extensions
 *.so
@@ -105,3 +106,4 @@ venv.bak/
 visual_font/node_modules
 sniffer/bin
 .idea
+sniffer/cmake-build-debug
