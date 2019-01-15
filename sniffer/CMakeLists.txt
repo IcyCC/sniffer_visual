@@ -6,4 +6,4 @@ set(CMAKE_CXX_STANDARD 14)
 include_directories(src)
 
 add_executable(sniffer
-        src/main.cpp)
+        src/main.cpp src/package.h src/package.cpp src/util.h)
