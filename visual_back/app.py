@@ -198,3 +198,6 @@ def quer_clint_host_ranks(src):
     """), src=src)
     res = res.fetchall()
     return jsonify(code=200, msg='', client_hosts=[dict(i) for i in res])
+
+if __name__ == '__main__':
+    app.run()
