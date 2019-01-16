@@ -1,6 +1,6 @@
 create table request_headers
 (
-	id int null,
+	id int not null primary key comment '本次请求的id',
 	request_id int not null comment '请求id',
 	header_key varchar(255) default '' not null comment '请求头的值',
 	header_value varchar(1024) default '' not null comment '请求头的值'
