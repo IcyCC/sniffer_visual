@@ -42,6 +42,6 @@ class Tables(object):
     def __getattr__(self, item):
         return self._tables[item]
 
-    def execute(self, sql):
+    def execute(self, sql, *args, **kwargs):
         conn = self._engine.connect()
-        return conn.execute(sql)
+        return conn.execute(sql, *args,**kwargs)

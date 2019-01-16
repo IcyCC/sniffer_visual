@@ -54,21 +54,23 @@
               <Icon type="ios-apps" />
                 表格数据展示
             </MenuItem>
-            <MenuItem name="chart_show">
+            <MenuItem name="frequency">
               <Icon type="md-analytics"/>
                 访问频率分析
             </MenuItem>
-            <MenuItem name="chart_show">
+            <MenuItem name="hot_point">
               <Icon type="md-analytics"/>
                 兴趣热点分析
             </MenuItem>
           </div>
         </Menu>
       </Header>
-      <Content :style="{margin: '88px 20px 0', background: '#fff', minHeight: '720px'}">
-        <router-view></router-view>
+      <Content :style="{margin: '88px 20px 0', minHeight: '720px'}">
+        <div style="margin-top: 25px">
+          <router-view></router-view>
+        </div>
       </Content>
-      <Footer class="layout-footer-center">2011-2016 &copy; TalkingData</Footer>
+      <Footer class="layout-footer-center">2019 &copy; Suchang Yinyue Qidongsheng</Footer>
     </Layout>
   </div>
 </template>
@@ -87,8 +89,11 @@
                 this.activity_name = this.$route.name
             },
             watch: {
-                '$route' () {
-                    this.highlightMenu()
+                '$route': {
+                    handler: function (){
+                        this.highlightMenu()
+                    },
+                    deep:true
                 }
             },
         }

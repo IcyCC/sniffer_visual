@@ -1,6 +1,6 @@
 from flask import Flask, jsonify, request
 from model import my_table
-from sqlalchemy.sql import select, and_, func, between
+from sqlalchemy.sql import select, and_, func, between, distinct, text
 from util import convert_datetime_to_string
 
 app = Flask(__name__)
@@ -74,7 +74,7 @@ def comm_count(table_name, query):
                     sql = sql.where(getattr(table.c, k[5:]) <= v)
             elif k.startswith('_like_'):
                 for v in values:
-                    sql = sql.where(getattr(table.c, k[6:]).like(v))
+                    sql = sql.where(getattr(table.c, k[6:]).like("%" + v))
             else:
                 sql = sql.where(getattr(table.c, k).in_(values))
 
@@ -151,6 +151,54 @@ def get_request_header(id):
         return jsonify(code=200, msg='', request_header=format_request_info(res[0]))
     else:
         return jsonify(code=404, msg='', request_header={})
+
+
+@app.route("/queryHostClientRank", methods=["GET"])
+def query_host_client_rank():
+    res = my_table.execute("""
+    SELECT request_headers.header_value,count(*) as num FROM request_headers    join request_infos on request_infos.id = request_headers.request_id
+    where request_headers.header_key = 'HOST' GROUP BY request_headers.header_value ORDER BY count(*) DESC ;
+    """)
+    res = res.fetchall()
+    return jsonify(code=200, msg='', host_ranks=[dict(i) for i in res])
+
+
+@app.route("/queryHostTimeRank", methods=["GET"])
+def query_host_time_rank():
+    res = my_table.execute("""
+    SELECT request_headers.header_value,count(*) as num FROM request_headers GROUP BY request_headers.header_value 
+    ORDER BY COUNT(*) DESC;
+    """)
+    res = res.fetchall()
+    return jsonify(code=200, msg='', host_ranks=[dict(i) for i in res])
+
+
+@app.route("/queryClientRank", methods=["GET"])
+def query_client_rank():
+    res = my_table.execute("""
+    SELECT  request_infos.src, count(*) as num FROM request_infos GROUP BY request_infos.src ORDER BY COUNT(*) DESC;
+    """)
+    res = res.fetchall()
+    return jsonify(code=200, msg='', client_ranks=[dict(i) for i in res])
+
+
+@app.route("/client_src", methods=["GET"])
+def query_client_src():
+    src_like = request.args.get('_like_src', '')
+    sql = select([distinct(my_table.request_infos.c.src)]).where(my_table.request_infos.c.src.like("%" + src_like))
+    sql = sql.limit(30)
+    res = my_table.execute(sql).fetchall()
+    return jsonify(code=200, msg='', client_srcs=[dict(i) for i in res])
+
+
+@app.route("/queryClientHostRank/<string:src>", methods=["GET"])
+def quer_clint_host_ranks(src):
+    res = my_table.execute(text("""
+    SELECT request_headers.header_value,COUNT(*) as num FROM request_headers where request_headers.request_id IN (SELECT id FROM request_infos WHERE src = :src)
+     AND request_headers.header_key = 'HOST' GROUP BY request_headers.header_value ORDER BY COUNT(*);
+    """), src=src)
+    res = res.fetchall()
+    return jsonify(code=200, msg='', client_hosts=[dict(i) for i in res])
 
 
 if __name__ == '__main__':

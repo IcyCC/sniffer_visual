@@ -12,24 +12,21 @@ export default new Router({
             component: Home,
             children: [
                 {
+                    path: '/frequency',
+                    name: 'frequency',
+                    component: () => import('@/views/FrequencyChart')
+                },
+                {
                     path: '/table_show',
                     name: 'table_show',
-                    meta: {
-                        title: '首页',
-                        notCache: true,
-                        icon: 'md-home'
-                    },
                     component: () => import('@/views/TableShow')
+                },
+                {
+                    path: '/hot_point',
+                    name: 'hot_point',
+                    component: () => import('@/views/HotPointClient')
                 }
             ]
         },
-        {
-            path: '/about',
-            name: 'about',
-            // route level code-splitting
-            // this generates a separate chunk (about.[hash].js) for this route
-            // which is lazy-loaded when the route is visited.
-            component: () => import(/* webpackChunkName: "about" */ './views/About.vue')
-        }
     ]
 })
