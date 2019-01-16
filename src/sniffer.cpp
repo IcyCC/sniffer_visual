@@ -8,9 +8,11 @@ void show_iphdr(struct iphdr *ip)
     printf("ip header:\n");
     printf("version: %d\n", ip->version);
     addr.s_addr = ip->saddr;
-    printf("saddr: %s\n", inet_ntoa(addr));
+    strcpy(reqinfo.src,inet_ntoa(addr));
+    //printf("saddr: %s\n", inet_ntoa(addr));
     addr.s_addr = ip->daddr;
-    printf("daddr: %s\n", inet_ntoa(addr));
+    //printf("daddr: %s\n", inet_ntoa(addr));
+    strcpy(reqinfo.dest,inet_ntoa(addr));
 }
 
 int prase_packet(const u_char *buf,  int caplen)

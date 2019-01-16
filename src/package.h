@@ -9,6 +9,7 @@
 #include <arpa/inet.h>
 #include <errno.h>
 #include <string.h>
+#include <>
 
 
 struct RequestInfo{
@@ -19,6 +20,8 @@ struct RequestInfo{
     int created_at;
 } ;
 
+struct RequestInfo reqinfo;
+
 struct RequestHeader{
     int id;
     int request_id;
@@ -26,3 +29,4 @@ struct RequestHeader{
     char header_value[1024];
 };
 
+struct RequestHeader reqhdl;
