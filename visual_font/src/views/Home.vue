@@ -59,7 +59,7 @@
                 访问频率分析
             </MenuItem>
             <MenuItem name="hot_point">
-              <Icon type="md-analytics"/>
+              <Icon type="ios-barcode" />
                 兴趣热点分析
             </MenuItem>
           </div>
