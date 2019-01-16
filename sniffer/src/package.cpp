@@ -25,13 +25,26 @@ int SaveRequestInfo(RequestInfo *req){
     // 把一个RequestInfo对象入库 返回id
     // -1代表失败
     // id自动填充到传入的req
-    connection();
+    
     MYSQL_RES *res;
     MYSQL_ROW row;
     int id;
     char query[200];
     int t,r;
-	sprintf(query,"insert into request_infos(src,dest) values(req->src,req->dest)");
+    char str[2];
+	sprintf(str,"%d",req->type);
+	sprintf(query,"insert into request_infos(type,src,dest)values(");
+	strcat(query,str);
+	strcat(query,",");
+	strcat(query,"\"");
+	strcat(query,req->src);
+	strcat(query,"\"");
+	strcat(query,",");
+	strcat(query,"\"");
+	strcat(query,req->dest);
+	strcat(query,"\"");
+	strcat(query,")");
+	printf("%s\n",query);
 	t=mysql_query(&conn,query);
 	if(t)
 	{
@@ -73,23 +86,35 @@ int SaveRequestHeader(RequestHeader * h){
     // 把一个RequestHeader对象入库 返回id
     // -1代表失败
     // id自动填充到传入的req
-    connection();
+    
     MYSQL_RES *res;
     MYSQL_ROW row;
     char query[200];
     int t,r;
     int id;
-	sprintf(query,"insert into request_headers(request_id,header_key,header_value) values(h->request_id,h->header_key,req->header_value)");
+	char str[2];
+	sprintf(str,"%d",h->request_id);
+	sprintf(query,"insert into request_headers(request_id,header_key,header_value)values(");
+	strcat(query,str);
+	strcat(query,",");
+	strcat(query,"\"");
+	strcat(query,h->header_key);
+	strcat(query,"\"");
+	strcat(query,",");
+	strcat(query,"\"");
+	strcat(query,h->header_value);
+	strcat(query,"\"");
+	strcat(query,")");
+	printf("%s\n",query);
 	t=mysql_query(&conn,query);
 	if(t)
 	{
-	   printf("Error:%s\n",mysql_error(&conn));
-       return -1;
+	    cout<<"Error:"<<mysql_error(&conn));
 	
 	}
 	else
 	{
-	   printf("success insert\n");
+	   cout<<t<<endl;
 	}
     
 	char find_id[200];
