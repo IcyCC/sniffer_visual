@@ -157,7 +157,7 @@ def get_request_header(id):
 def query_host_client_rank():
     res = my_table.execute("""
     SELECT request_headers.header_value,count(*) as num FROM request_headers    join request_infos on request_infos.id = request_headers.request_id
-    where request_headers.header_key = 'HOST' GROUP BY request_headers.header_value ORDER BY count(*) DESC ;
+    where request_headers.header_key = 'Host' GROUP BY request_headers.header_value ORDER BY count(*) DESC ;
     """)
     res = res.fetchall()
     return jsonify(code=200, msg='', host_ranks=[dict(i) for i in res])
@@ -195,7 +195,7 @@ def query_client_src():
 def quer_clint_host_ranks(src):
     res = my_table.execute(text("""
     SELECT request_headers.header_value,COUNT(*) as num FROM request_headers where request_headers.request_id IN (SELECT id FROM request_infos WHERE src = :src)
-     AND request_headers.header_key = 'HOST' GROUP BY request_headers.header_value ORDER BY COUNT(*);
+     AND request_headers.header_key = 'Host' GROUP BY request_headers.header_value ORDER BY COUNT(*);
     """), src=src)
     res = res.fetchall()
     return jsonify(code=200, msg='', client_hosts=[dict(i) for i in res])
