@@ -120,7 +120,7 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
     struct sniff_ip *ip;                    /* IP 头部                 | The IP header */
     struct sniff_tcp *tcp;                  /* TCP 头部                | The TCP header */
  
-    unsigned char *payload;                 /* Packet payload */
+    const char *payload;                 /* Packet payload */
  
     int size_ip;
     int size_tcp;
@@ -184,10 +184,11 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
             return;
         }
         /* define/compute tcp payload (segment) offset */
-        payload = (unsigned char *) (packet + SIZE_ETHERNET + size_ip + size_tcp);
+        payload = (char *) (packet + SIZE_ETHERNET + size_ip + size_tcp);
         /* compute tcp payload (segment) size */
         size_payload = ntohs (ip->ip_len) - (size_ip + size_tcp);
-        if(strstr(payload,"HTTP"))
+        // if(strstr(payload,"HTTP"))
+        if(ntohs (tcp->th_sport) == 80)
         {
             printf("       From: %s\n", inet_ntoa(ip->ip_src));
             printf("         To: %s\n", inet_ntoa(ip->ip_dst));
@@ -195,11 +196,10 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
             printf ("   Dst port  : %d\n", ntohs (tcp->th_dport));
             printf ("   Seq number: %d\n", ntohl (tcp->th_seq));
             printf ("  TCP size_payload: %d\n", size_payload);
-        
             if (size_payload > 0)
             {
                 printf ("   Payload (%d bytes):\n", size_payload);
-                print_payload(payload,size_payload);
+                //print_payload(payload,size_payload);
                 //ntohs(tcp->th_dport,payload, ntohl(tcp->th_seq), size_payload,fin);
             }
         }
@@ -212,15 +212,14 @@ void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *pa
       /* define/compute udp header offset */
         udp = (struct sniff_udp *) (packet + SIZE_ETHERNET + size_ip);
         /* define/compute udp payload (segment) offset */
-        payload = (unsigned char *) (packet + SIZE_ETHERNET + size_ip + 8);
+        payload = (char *) (packet + SIZE_ETHERNET + size_ip + 8);
         size_payload = ntohs (ip->ip_len) - (size_ip + 8);
-        if(strstr(payload,"HTTP"))
+        if(ntohs (udp->sport) == 80)
         {
             printf("       From: %s\n", inet_ntoa(ip->ip_src));
             printf("         To: %s\n", inet_ntoa(ip->ip_dst));
             printf ("   Src port: %d\n", ntohs (udp->sport));
             printf ("   Dst port: %d\n", ntohs (udp->dport));
-
             printf ("  UDP size_payload: %d\n", size_payload);
         }        
     }//end udp
