@@ -2,6 +2,10 @@
 // Created by 苏畅 on 2019/1/15.
 //
 #pragma once
+
+#include "stdio.h"
+#include "string.h"
+
 struct RequestInfo{
     int id;
     char src[100];
