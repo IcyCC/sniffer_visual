@@ -1,6 +1,6 @@
 # tool marcros
 CC := g++
-CCFLAG := -std=c++11 -lpthread
+CCFLAG := -std=c++11 -lpthread  -I/usr/include/mysql -L/usr/lib/mysql -lmysqlclient -lpcap
 DBGFLAG := -g
 CCOBJFLAG := $(CCFLAG) -c
 

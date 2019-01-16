@@ -1,18 +1,20 @@
 #include "sniffer.h"
 
+using namespace std;
+
 /*Display IP Header*/
 void show_iphdr(struct iphdr *ip)
 {
     struct in_addr addr;
-
-    printf("ip header:\n");
-    printf("version: %d\n", ip->version);
+    struct RequestInfo reqinfo;
     addr.s_addr = ip->saddr;
     strcpy(reqinfo.src,inet_ntoa(addr));
-    //printf("saddr: %s\n", inet_ntoa(addr));
+    printf("saddr: %s\n", inet_ntoa(addr));
     addr.s_addr = ip->daddr;
-    //printf("daddr: %s\n", inet_ntoa(addr));
+    printf("daddr: %s\n", inet_ntoa(addr));
     strcpy(reqinfo.dest,inet_ntoa(addr));
+
+    SaveRequestInfo(&reqinfo);
 }
 
 int prase_packet(const u_char *buf,  int caplen)
@@ -56,6 +58,7 @@ void processPacket(u_char *arg, const struct pcap_pkthdr* pkthdr, const u_char *
     struct iphdr *ip;
     struct tcphdr *tcp;
     const char *payload;
+    struct RequestHeader reqhdl;
     int i=0, *counter = (int *)arg; 
 
     ethernet = (struct ether_header*)(packet);
@@ -67,9 +70,20 @@ void processPacket(u_char *arg, const struct pcap_pkthdr* pkthdr, const u_char *
     if(strstr(payload,"HTTP") != NULL)     
     {
         temp = payload;
+        //写入数据库
         prase_packet(packet, pkthdr->len);
-        printf("%d\n",++(*counter));
-        printf("Payload:\n%s",temp);
+        std::map<std::string, std::string> key_value;
+        std::map<std::string, std::string>::iterator iter;
+        key_value = ParseHttpHeader(temp);
+        for(auto iter = key_value.begin(); iter != key_value.end(); iter++) 
+        {
+            strcpy(reqhdl.header_key,iter->first.c_str());
+            strcpy(reqhdl.header_key,iter->second.c_str());
+            SaveRequestHeader(&reqhdl);
+        }
+        //printf("%d\n",++(*counter));
+        //printf("Payload:\n%s",temp);
+
     }
     return;
 } 

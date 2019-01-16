@@ -5,6 +5,9 @@
 #include <netinet/tcp.h>
 #include <net/ethernet.h>
 #include <arpa/inet.h>
+#include "package.h"
+#include "util.h"
+
 
 #define MAXBYTE_CAPTURE 2048 
 

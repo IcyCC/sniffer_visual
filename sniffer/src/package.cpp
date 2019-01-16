@@ -2,7 +2,9 @@
 // Created by 苏畅 on 2019/1/15.
 //
 
-#include "package.h"	
+#include "package.h"
+
+using namespace std;
 MYSQL conn;
 void  connection ()
 {
@@ -69,7 +71,7 @@ int SaveRequestInfo(RequestInfo *req){
 		if(res)
 		{
 		  
-			row=mysql_fetch_row(res)
+			row=mysql_fetch_row(res);
 			printf("%s\n",row[0]);
 			id=atoi(row[0]);
 			req->id=id;
@@ -109,12 +111,12 @@ int SaveRequestHeader(RequestHeader * h){
 	t=mysql_query(&conn,query);
 	if(t)
 	{
-	    cout<<"Error:"<<mysql_error(&conn));
+	    std::cout<<"Error:"<<mysql_error(&conn);
 	
 	}
 	else
 	{
-	   cout<<t<<endl;
+	   std::cout<<t<<std::endl;
 	}
     
 	char find_id[200];
