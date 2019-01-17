@@ -9,12 +9,12 @@ void show_iphdr(struct iphdr *ip)
     struct RequestInfo reqinfo;
     addr.s_addr = ip->saddr;
     strcpy(reqinfo.src,inet_ntoa(addr));
-    printf("saddr: %s\n", inet_ntoa(addr));
-    addr.s_addr = ip->daddr;
-    printf("daddr: %s\n", inet_ntoa(addr));
-    strcpy(reqinfo.dest,inet_ntoa(addr));
+    printf("saddr: %s\n", reqinfo.src);
 
-    SaveRequestInfo(&reqinfo);
+    addr.s_addr = ip->daddr;
+    strcpy(reqinfo.dest,inet_ntoa(addr));
+    printf("daddr: %s\n", reqinfo.dest);
+    //SaveRequestInfo(&reqinfo);
 }
 
 int prase_packet(const u_char *buf,  int caplen)
@@ -78,11 +78,12 @@ void processPacket(u_char *arg, const struct pcap_pkthdr* pkthdr, const u_char *
         for(auto iter = key_value.begin(); iter != key_value.end(); iter++) 
         {
             strcpy(reqhdl.header_key,iter->first.c_str());
-            strcpy(reqhdl.header_key,iter->second.c_str());
-            SaveRequestHeader(&reqhdl);
+            strcpy(reqhdl.header_value,iter->second.c_str());
+            printf("key: %s\t value: %s\n", reqhdl.header_key,reqhdl.header_value);
+            //SaveRequestHeader(&reqhdl);
         }
-        //printf("%d\n",++(*counter));
-        //printf("Payload:\n%s",temp);
+        printf("%d\n",++(*counter));
+        printf("Payload:\n%s",temp);
 
     }
     return;

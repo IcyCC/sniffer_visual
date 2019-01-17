@@ -3,13 +3,13 @@
 //
 #pragma once
 
-#include <mysql.h>
+#include <mysql/mysql.h>
 #include "stdio.h"
 #include "string.h"
 #include "stdlib.h"
 #include<iostream>
 
-typedef struct RequestInfo{
+ struct RequestInfo{
     int id;
     char src[100];
     char dest[100];
