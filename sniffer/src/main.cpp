@@ -9,6 +9,7 @@ int main(int argc, char *argv[])
     char errbuf[PCAP_ERRBUF_SIZE], *device=NULL; 
     memset(errbuf,0,PCAP_ERRBUF_SIZE); 
 
+
     if( argc > 1)
     {  
         device = argv[1];
@@ -23,6 +24,11 @@ int main(int argc, char *argv[])
 
     printf("Opening device %s\n", device); 
 
+    // if(daemon(1, 0) < 0)  
+    // {  
+    //     perror("error daemon.../n");  
+    //     exit(1);  
+    // } 
     /* 混合模式 */ 
     if ( (descr = pcap_open_live(device, MAXBYTE_CAPTURE, 1,  512, errbuf)) == NULL){
         fprintf(stderr, "ERROR: %s\n", errbuf);
