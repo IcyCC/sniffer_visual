@@ -1,6 +1,12 @@
 #include <pcap.h> 
 #include <string.h> 
 #include <stdlib.h> 
+#include <unistd.h>
+#include <stdlib.h>
+#include <time.h>
+#include <fcntl.h>
+#include <string.h>
+#include <sys/stat.h>
 #include <netinet/ip.h>
 #include <netinet/tcp.h>
 #include <net/ethernet.h>

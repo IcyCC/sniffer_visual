@@ -20,9 +20,13 @@
 typedef struct RequestHeader{
     int id;
     int request_id;
-    char header_key[100];
-    char header_value[1024];
+    char header_key[1024];
+    char header_value[4096];
 };
+
+RequestHeader* InitRequestHeader(RequestHeader * rh);
+RequestInfo* InitRequestInfo(RequestInfo * rh);
+
 
 int SaveRequestHeader(RequestHeader * h);
 int SaveRequestInfo(RequestInfo *req);
