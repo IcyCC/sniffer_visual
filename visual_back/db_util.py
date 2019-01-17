@@ -2,6 +2,13 @@ from sqlalchemy import create_engine, MetaData, Table
 
 
 def get_engine(user, password, host, port, database):
+    print('mysql+pymysql://{user}:{password}@{host}:{port}/{database}?charset=utf8mb4'.format(
+            user=user,
+            password=password,
+            host=host,  # your host
+            port=port,
+            database=database,
+        ))
     engine = create_engine(
         'mysql+pymysql://{user}:{password}@{host}:{port}/{database}?charset=utf8mb4'.format(
             user=user,
