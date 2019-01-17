@@ -42,13 +42,12 @@ def comm_query(table_name, query, pager, sorter):
             else:
                 sql = sql.offset((page - 1) * per_page)
 
-    if sorter:
-        order_by = sorter.get('_order_by', 'id')
-        desc = sorter.get('_desc', True)
-        if desc:
-            sql = sql.order_by(getattr(table, order_by, 'id').desc())
-        else:
-            sql = sql.order_by(getattr(table, order_by, 'id').aesc())
+    order_by = sorter.get('_order_by', 'id')
+    desc = sorter.get('_desc', True)
+    if desc:
+        sql = sql.order_by(getattr(table.c, order_by, table.c.id).desc())
+    else:
+        sql = sql.order_by(getattr(table.c, order_by,table.c.id).aesc())
     res = my_table.execute(sql)
     return res.fetchall()
 
@@ -156,8 +155,10 @@ def get_request_header(id):
 @app.route("/queryHostClientRank", methods=["GET"])
 def query_host_client_rank():
     res = my_table.execute("""
-    SELECT request_headers.header_value,count(*) as num FROM request_headers    join request_infos on request_infos.id = request_headers.request_id
-    """)
+select request_headers.header_value, COUNT(DISTINCT request_infos.src) as num FROM request_headers
+ join request_infos on request_headers.request_id = request_infos.id
+ WHERE request_headers.header_key = 'Host' OR request_headers.header_key = 'host' GROUP BY request_headers.header_value ORDER BY COUNT( DISTINCT request_infos.src) desc;    
+""")
     res = res.fetchall()
     return jsonify(code=200, msg='', host_ranks=[dict(i) for i in res])
 
@@ -165,7 +166,7 @@ def query_host_client_rank():
 @app.route("/queryHostTimeRank", methods=["GET"])
 def query_host_time_rank():
     res = my_table.execute("""
-    SELECT request_headers.header_value,count(*) as num FROM request_headers GROUP BY request_headers.header_value 
+    SELECT request_headers.header_value,count(*) as num FROM request_headers WHERE request_headers.header_key = 'Host' OR request_headers.header_key = 'host' GROUP BY request_headers.header_value 
     ORDER BY COUNT(*) DESC;
     """)
     res = res.fetchall()
@@ -194,10 +195,10 @@ def query_client_src():
 def quer_clint_host_ranks(src):
     res = my_table.execute(text("""
     SELECT request_headers.header_value,COUNT(*) as num FROM request_headers where request_headers.request_id IN (SELECT id FROM request_infos WHERE src = :src)
-     AND request_headers.header_key = 'Host' GROUP BY request_headers.header_value ORDER BY COUNT(*);
+     AND request_headers.header_key = 'Host'  GROUP BY request_headers.header_value ORDER BY COUNT(*);
     """), src=src)
     res = res.fetchall()
     return jsonify(code=200, msg='', client_hosts=[dict(i) for i in res])
 
 if __name__ == '__main__':
-    app.run()
+    app.run(host='0.0.0.0')
