@@ -1,4 +1,5 @@
 from flask import Flask, jsonify, request
+import pandas as pd
 from model import my_table
 from sqlalchemy.sql import select, and_, func, between, distinct, text
 from util import convert_datetime_to_string
@@ -41,13 +42,14 @@ def comm_query(table_name, query, pager, sorter):
                 sql = sql.offset((page - 1) * 30).limit(30)
             else:
                 sql = sql.offset((page - 1) * per_page)
-
+    if sorter is None:
+        sorter = {}
     order_by = sorter.get('_order_by', 'id')
     desc = sorter.get('_desc', True)
     if desc:
         sql = sql.order_by(getattr(table.c, order_by, table.c.id).desc())
     else:
-        sql = sql.order_by(getattr(table.c, order_by,table.c.id).aesc())
+        sql = sql.order_by(getattr(table.c, order_by, table.c.id))
     res = my_table.execute(sql)
     return res.fetchall()
 
@@ -155,9 +157,7 @@ def get_request_header(id):
 @app.route("/queryHostClientRank", methods=["GET"])
 def query_host_client_rank():
     res = my_table.execute("""
-select request_headers.header_value, COUNT(DISTINCT request_infos.src) as num FROM request_headers
- join request_infos on request_headers.request_id = request_infos.id
- WHERE request_headers.header_key = 'Host' OR request_headers.header_key = 'host' GROUP BY request_headers.header_value ORDER BY COUNT( DISTINCT request_infos.src) desc;    
+SELECT request_infos.host as host, COUNT(DISTINCT src) as num FROM request_infos GROUP BY host; 
 """)
     res = res.fetchall()
     return jsonify(code=200, msg='', host_ranks=[dict(i) for i in res])
@@ -166,8 +166,7 @@ select request_headers.header_value, COUNT(DISTINCT request_infos.src) as num FR
 @app.route("/queryHostTimeRank", methods=["GET"])
 def query_host_time_rank():
     res = my_table.execute("""
-    SELECT request_headers.header_value,count(*) as num FROM request_headers WHERE request_headers.header_key = 'Host' OR request_headers.header_key = 'host' GROUP BY request_headers.header_value 
-    ORDER BY COUNT(*) DESC;
+    SELECT request_infos.host as host, COUNT(*) as num FROM request_infos GROUP BY host;
     """)
     res = res.fetchall()
     return jsonify(code=200, msg='', host_ranks=[dict(i) for i in res])
@@ -192,13 +191,23 @@ def query_client_src():
 
 
 @app.route("/queryClientHostRank/<string:src>", methods=["GET"])
-def quer_clint_host_ranks(src):
+def query_clint_host_ranks(src):
     res = my_table.execute(text("""
-    SELECT request_headers.header_value,COUNT(*) as num FROM request_headers where request_headers.request_id IN (SELECT id FROM request_infos WHERE src = :src)
-     AND request_headers.header_key = 'Host'  GROUP BY request_headers.header_value ORDER BY COUNT(*);
+    SELECT request_infos.host as host, COUNT(*) as num FROM request_infos WHERE src = :src GROUP BY host;
     """), src=src)
     res = res.fetchall()
     return jsonify(code=200, msg='', client_hosts=[dict(i) for i in res])
+
+
+@app.route("/queryClientHourTime/<string:src>", methods=["GET"])
+def query_client_hour_time(src):
+    request_infos = comm_query("request_infos", {'src': [src]}, None, {'_order_by': 'id', '_desc': False})
+    request_infos = {convert_datetime_to_string(i.created_at): 1 for i in request_infos}
+    df = pd.Series(request_infos)
+    df.index = pd.to_datetime(df.index)
+    res = df.resample('30min')
+    return jsonify(code=200, msg='', client_time=[dict(time=convert_datetime_to_string(k), num=v) for k,v in res.sum().to_dict().items()])
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0')
