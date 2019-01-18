@@ -3,6 +3,7 @@
 </template>
 
 <script>
+    import TdTheme from './charts_theme'
     export default {
         name: "line",
         props: {
@@ -55,6 +56,7 @@
             }
         },
         mounted:function(){
+            // this.$refs.chart.registerTheme(TdTheme);
             this.setCharts()
         },
         watch: {
