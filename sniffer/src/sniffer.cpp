@@ -4,7 +4,7 @@ using namespace std;
 
 /*Display IP Header*/
 
-void show_iphdr(struct iphdr *ip, struct RequestInfo * reqinfo,const char* host)
+void show_iphdr(struct iphdr *ip, struct RequestInfo * reqinfo,std::string & host)
 {
     struct in_addr addr;
     addr.s_addr = ip->saddr;
@@ -15,11 +15,11 @@ void show_iphdr(struct iphdr *ip, struct RequestInfo * reqinfo,const char* host)
     strcpy(reqinfo->dest,inet_ntoa(addr));
     printf("daddr: %s\n", reqinfo->dest);
     reqinfo->type = 1;
-    strcpy(reqinfo->host,host);
+    strcpy(reqinfo->host,host.c_str());
     SaveRequestInfo(reqinfo);
 }
 
-int prase_packet(const u_char *buf,  int caplen,  struct RequestInfo* reqinfo,const char* host)
+int prase_packet(const u_char *buf,  int caplen,  struct RequestInfo* reqinfo,std::string & host)
 {
     uint16_t e_type;
     uint32_t offset;
@@ -49,14 +49,16 @@ int prase_packet(const u_char *buf,  int caplen,  struct RequestInfo* reqinfo,co
     return 0;
 }
 
-const char* findHost(std::map<std::string, std::string> key_value)
+std::string findHost(std::map<std::string, std::string>& key_value)
 {
     std::map<std::string, std::string>::iterator iter;
-    if (key_value.find("host") != key_value.end())
+    iter = key_value.find("host");
+    if (iter != key_value.end())
     {
-        return iter->second.c_str();
+
+        return iter->second;
     }     
-    return NULL;
+    return "";
 }   
 
 /*用于回调函数，打印payload*/
@@ -70,7 +72,7 @@ void processPacket(u_char *arg, const struct pcap_pkthdr* pkthdr, const u_char *
     struct RequestHeader reqhdl;
     InitRequestHeader(&reqhdl);
 
-    const char *host = NULL;        //接收payload中的host字段
+    std::string host = "";        //接收payload中的host字段
 
     payload = (char *)(packet + ETHER_HDR_LEN + sizeof(struct iphdr) + sizeof(struct tcphdr)); 
     //const char *temp = NULL;
@@ -82,8 +84,7 @@ void processPacket(u_char *arg, const struct pcap_pkthdr* pkthdr, const u_char *
         std::map<std::string, std::string>::iterator iter;
         key_value = ParseHttpHeader(payload);
         host = findHost(key_value);
-
-        if(host != NULL)
+        if(host != "")
         {
             prase_packet(packet, pkthdr->len,&reqinfo,host);
 
