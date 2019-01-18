@@ -1,22 +1,20 @@
-create table request_headers
-(
-	id int not null primary key auto_increment comment '本次请求的id',
-	request_id int not null comment '请求id',
-	header_key varchar(255) default '' not null comment '请求头的值',
-	header_value varchar(1024) default '' not null comment '请求头的值'
-)
-;
-create index request_headers_request_id_index on request_headers (request_id);
-create table request_infos
-(
-	id int not null
-		primary key auto_increment comment '本次请求的id',
-	type tinytint ,default '0' not null comment '类型 0 为请求 1为响应',
-	src varchar(128) default '' not null comment '本次请求的源地址',
-	dest varchar(128) default '' null comment '本次请求的目的地址',
-	created_at timestamp default CURRENT_TIMESTAMP not null comment '入库时间',
-	host varchar(1024) default '' not null comment '请求的url'
-)
-;
-create index request_infos_src_index on request_infos (src);
+CREATE TABLE `request_headers` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `request_id` int(11) NOT NULL COMMENT '请求的id',
+  `header_key` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '请求头的值',
+  `header_value` varchar(4096) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '请求头的值',
+  PRIMARY KEY (`id`),
+  KEY `request_headers_request_id_index` (`request_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+
+CREATE TABLE `request_infos` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `src` varchar(128) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `dest` varchar(128) COLLATE utf8mb4_unicode_ci DEFAULT '',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `type` tinyint(4) NOT NULL DEFAULT '0' COMMENT '类型 0 为请求 1为响应',
+  `host` varchar(1024) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '请求的url',
+  PRIMARY KEY (`id`),
+  KEY `request_infos_src_index` (`src`(10))
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 

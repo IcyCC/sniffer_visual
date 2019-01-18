@@ -1,15 +1,33 @@
-﻿//
-// Created by 苏畅 on 2019/1/15.
+//
+// Created by 鑻忕晠 on 2019/1/15.
 //
 
 #include "package.h"	
+#include <iostream>
+using namespace std;
+
 MYSQL conn;
+
+RequestHeader* InitRequestHeader(RequestHeader * rh){
+    rh->id = -1;
+    rh->request_id = -1;
+    bzero(rh->header_key, sizeof(rh->header_key));
+    bzero(rh->header_value, sizeof(rh->header_value));
+    return rh;
+}
+
+RequestInfo* InitRequestInfo(RequestInfo * rh){
+    bzero(rh->src, sizeof(rh->src));
+    bzero(rh->dest,sizeof(rh->dest	));
+    return rh;
+}
+
 void  connection ()
 {
 
 	const char *server="localhost";
     const char *user="root";
-    const char *password="123456";
+    const char *password="Root!!2019";
     const char *database="web"; 
 	mysql_init(&conn);
 	if(!mysql_real_connect(&conn,server,user,password,database,0,NULL,0))
@@ -21,17 +39,19 @@ void  connection ()
 		printf("connected..\n");
 	}	
 }
-int SaveRequestInfo(RequestInfo *req){
-    // 把一个RequestInfo对象入库 返回id
-    // -1代表失败
-    // id自动填充到传入的req
-    
+
+
+int SaveRequestInfo(RequestInfo *req)
+{
+    // 锟斤拷一锟斤拷RequestInfo锟斤拷锟斤拷锟斤拷锟� 锟斤拷锟斤拷id
+    // -1锟斤拷锟斤拷失锟斤拷
+    // id锟皆讹拷锟斤拷涞斤拷锟斤拷锟斤拷req
     MYSQL_RES *res;
     MYSQL_ROW row;
     int id;
-    char query[200];
+    char query[8000]={0};
     int t,r;
-    char str[2];
+    char str[2]={0};
 	sprintf(str,"%d",req->type);
 	sprintf(query,"insert into request_infos(src,dest,type,host)values(");
 	strcat(query,"\"");
@@ -73,7 +93,7 @@ int SaveRequestInfo(RequestInfo *req){
 		if(res)
 		{
 		  
-			row=mysql_fetch_row(res)
+			row=mysql_fetch_row(res);
 			printf("%s\n",row[0]);
 			id=atoi(row[0]);
 			req->id=id;
@@ -87,16 +107,16 @@ int SaveRequestInfo(RequestInfo *req){
 
 
 int SaveRequestHeader(RequestHeader * h){
-    // 把一个RequestHeader对象入库 返回id
-    // -1代表失败
-    // id自动填充到传入的req
-    
+    // 锟斤拷一锟斤拷RequestHeader锟斤拷锟斤拷锟斤拷锟� 锟斤拷锟斤拷id
+    // -1锟斤拷锟斤拷失锟斤拷
+    // id锟皆讹拷锟斤拷涞斤拷锟斤拷锟斤拷req
     MYSQL_RES *res;
     MYSQL_ROW row;
-    char query[200];
+    char query[5000]={0}; 
     int t,r;
     int id;
-	char str[2];
+
+	char str[1000]={0};
 	sprintf(str,"%d",h->request_id);
 	sprintf(query,"insert into request_headers(request_id,header_key,header_value)values(");
 	strcat(query,str);
@@ -113,7 +133,8 @@ int SaveRequestHeader(RequestHeader * h){
 	t=mysql_query(&conn,query);
 	if(t)
 	{
-	    cout<<"Error:"<<mysql_error(&conn));
+	    cout<<"Error:"<<mysql_error(&conn);
+		return -1;
 	
 	}
 	else
@@ -144,6 +165,5 @@ int SaveRequestHeader(RequestHeader * h){
 	mysql_free_result(res);
 	}
 	return id;
-   
-    
+ 
 };
