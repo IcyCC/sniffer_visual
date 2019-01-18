@@ -50,7 +50,7 @@
                 return queryHostClientRank().then((resp) => {
                     this.host_client_rank = resp.data.host_ranks.map((item) => {
                         return {
-                            'name': item['header_value'],
+                            'name': item['host'],
                             'value': item['num']
                         }
                     })
@@ -61,7 +61,7 @@
 
                     this.host_time_rank = resp.data.host_ranks.map((item) => {
                         return {
-                            'name': item['header_value'],
+                            'name': item['host'],
                             'value': item['num']
                         }
                     })

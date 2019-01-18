@@ -39,3 +39,11 @@ export const queryClientSrcLike = (src) =>{
 export const queryCLientHostRanks = (src) =>{
     return axios.get('/api/queryClientHostRank/'+src)
 }
+
+export const queryClientHourTime =(src)=>{
+    if (src){
+        return axios.get('/api/queryClientHourTime/'+src)
+    } else {
+        return Promise.reject()
+    }
+}

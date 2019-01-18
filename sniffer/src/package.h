@@ -1,6 +1,7 @@
-//
+﻿//
 // Created by 苏畅 on 2019/1/15.
 //
+#include <mysql/mysql.h>
 #pragma once
 
 #include <mysql/mysql.h>
@@ -11,6 +12,7 @@
 
  struct RequestInfo{
     int id;
+    int type;
     char src[100];
     char dest[100];
     char host[2048];
