@@ -1,4 +1,4 @@
-//
+﻿//
 // Created by 苏畅 on 2019/1/15.
 //
 
@@ -33,15 +33,19 @@ int SaveRequestInfo(RequestInfo *req){
     int t,r;
     char str[2];
 	sprintf(str,"%d",req->type);
-	sprintf(query,"insert into request_infos(type,src,dest)values(");
-	strcat(query,str);
-	strcat(query,",");
+	sprintf(query,"insert into request_infos(src,dest,type,host)values(");
 	strcat(query,"\"");
 	strcat(query,req->src);
 	strcat(query,"\"");
 	strcat(query,",");
 	strcat(query,"\"");
 	strcat(query,req->dest);
+	strcat(query,"\"");
+	strcat(query,",");
+	strcat(query,str);
+	strcat(query,",");
+	strcat(query,"\"");
+	strcat(query,req->host);
 	strcat(query,"\"");
 	strcat(query,")");
 	printf("%s\n",query);
