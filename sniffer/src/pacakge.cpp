@@ -23,7 +23,7 @@ void  connection ()
 
 	const char *server="localhost";
     const char *user="root";
-    const char *password="qds161002103";
+    const char *password="Root!!2019";
     const char *database="web"; 
 	mysql_init(&conn);
 	if(!mysql_real_connect(&conn,server,user,password,database,0,NULL,0))
