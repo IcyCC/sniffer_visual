@@ -1,3 +1,7 @@
+//
+// Created by é‘»å¿•æ™  on 2019/1/15.
+//
+
 #include "package.h"	
 #include <iostream>
 using namespace std;
@@ -39,9 +43,9 @@ void  connection ()
 
 int SaveRequestInfo(RequestInfo *req)
 {
-    // °ÑÒ»¸öRequestInfo¶ÔÏóÈë¿â ·µ»Øid
-    // -1´ú±íÊ§°Ü
-    // id×Ô¶¯Ìî³äµ½´«ÈëµÄreq
+    // é”Ÿæ–¤æ‹·ä¸€é”Ÿæ–¤æ‹·RequestInfoé”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿï¿½ é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·id
+    // -1é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·å¤±é”Ÿæ–¤æ‹·
+    // idé”Ÿçš†è®¹æ‹·é”Ÿæ–¤æ‹·æ¶žæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·req
     MYSQL_RES *res;
     MYSQL_ROW row;
     int id;
@@ -49,15 +53,19 @@ int SaveRequestInfo(RequestInfo *req)
     int t,r;
     char str[2]={0};
 	sprintf(str,"%d",req->type);
-	sprintf(query,"insert into request_infos(type,src,dest)values(");
-	strcat(query,str);
-	strcat(query,",");
+	sprintf(query,"insert into request_infos(src,dest,type,host)values(");
 	strcat(query,"\"");
 	strcat(query,req->src);
 	strcat(query,"\"");
 	strcat(query,",");
 	strcat(query,"\"");
 	strcat(query,req->dest);
+	strcat(query,"\"");
+	strcat(query,",");
+	strcat(query,str);
+	strcat(query,",");
+	strcat(query,"\"");
+	strcat(query,req->host);
 	strcat(query,"\"");
 	strcat(query,")");
 	printf("%s\n",query);
@@ -99,9 +107,9 @@ int SaveRequestInfo(RequestInfo *req)
 
 
 int SaveRequestHeader(RequestHeader * h){
-    // °ÑÒ»¸öRequestHeader¶ÔÏóÈë¿â ·µ»Øid
-    // -1´ú±íÊ§°Ü
-    // id×Ô¶¯Ìî³äµ½´«ÈëµÄreq
+    // é”Ÿæ–¤æ‹·ä¸€é”Ÿæ–¤æ‹·RequestHeaderé”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿï¿½ é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·id
+    // -1é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·å¤±é”Ÿæ–¤æ‹·
+    // idé”Ÿçš†è®¹æ‹·é”Ÿæ–¤æ‹·æ¶žæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·req
     MYSQL_RES *res;
     MYSQL_ROW row;
     char query[5000]={0}; 
