@@ -13,11 +13,12 @@
     int id;
     char src[100];
     char dest[100];
+    char host[2048];
     int created_at;
     int type;
 } ;
 
-typedef struct RequestHeader{
+struct RequestHeader{
     int id;
     int request_id;
     char header_key[1024];

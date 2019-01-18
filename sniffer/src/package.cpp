@@ -1,7 +1,9 @@
-#include "package.h"	
-#include <iostream>
-using namespace std;
+//
+// Created by 苏畅 on 2019/1/15.
+//
 
+#include "package.h"
+using namespace std;	
 MYSQL conn;
 
 RequestHeader* InitRequestHeader(RequestHeader * rh){
@@ -13,6 +15,7 @@ RequestHeader* InitRequestHeader(RequestHeader * rh){
 }
 
 RequestInfo* InitRequestInfo(RequestInfo * rh){
+	memset(rh->host,0,sizeof(rh->host));
     bzero(rh->src, sizeof(rh->src));
     bzero(rh->dest,sizeof(rh->dest	));
     return rh;
@@ -35,29 +38,31 @@ void  connection ()
 		printf("connected..\n");
 	}	
 }
-
-
-int SaveRequestInfo(RequestInfo *req)
-{
+int SaveRequestInfo(RequestInfo *req){
     // 把一个RequestInfo对象入库 返回id
     // -1代表失败
     // id自动填充到传入的req
+    
     MYSQL_RES *res;
     MYSQL_ROW row;
     int id;
-    char query[8000]={0};
+    char query[200];
     int t,r;
-    char str[2]={0};
+    char str[2];
 	sprintf(str,"%d",req->type);
-	sprintf(query,"insert into request_infos(type,src,dest)values(");
-	strcat(query,str);
-	strcat(query,",");
+	sprintf(query,"insert into request_infos(src,dest,type,host)values(");
 	strcat(query,"\"");
 	strcat(query,req->src);
 	strcat(query,"\"");
 	strcat(query,",");
 	strcat(query,"\"");
 	strcat(query,req->dest);
+	strcat(query,"\"");
+	strcat(query,",");
+	strcat(query,str);
+	strcat(query,",");
+	strcat(query,"\"");
+	strcat(query,req->host);
 	strcat(query,"\"");
 	strcat(query,")");
 	printf("%s\n",query);
@@ -102,13 +107,13 @@ int SaveRequestHeader(RequestHeader * h){
     // 把一个RequestHeader对象入库 返回id
     // -1代表失败
     // id自动填充到传入的req
+    
     MYSQL_RES *res;
     MYSQL_ROW row;
-    char query[5000]={0}; 
+    char query[200];
     int t,r;
     int id;
-
-	char str[1000]={0};
+	char str[2];
 	sprintf(str,"%d",h->request_id);
 	sprintf(query,"insert into request_headers(request_id,header_key,header_value)values(");
 	strcat(query,str);
@@ -126,7 +131,6 @@ int SaveRequestHeader(RequestHeader * h){
 	if(t)
 	{
 	    cout<<"Error:"<<mysql_error(&conn);
-		return -1;
 	
 	}
 	else
@@ -157,5 +161,5 @@ int SaveRequestHeader(RequestHeader * h){
 	mysql_free_result(res);
 	}
 	return id;
- 
+    
 };

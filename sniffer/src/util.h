@@ -15,8 +15,19 @@ inline bool isLegal(char s) {
     return true;
 };
 
+inline std::string & ToLower(std::string& s)
+{
+    int len=s.size();
+    for(int i=0;i<len;i++){
+        if(s[i]>='A'&&s[i]<='Z'){
+            s[i]+=32;
+        }
+    }
+    return s;
+}
+
 inline std::map<std::string, std::string> ParseHttpHeader(std::string raw) {
-    enum class ParseMetaStatus {
+    enum ParseMetaStatus {
         NONE,
         KEY,
         VALUE,
@@ -27,7 +38,7 @@ inline std::map<std::string, std::string> ParseHttpHeader(std::string raw) {
     std::string raw_header;
     std::string raw_meta;
 
-    ParseMetaStatus status = ParseMetaStatus::NONE;
+    ParseMetaStatus status = NONE;
     unsigned long pos=raw.find("\r\n\r\n");
     if (pos != std::string::npos) {
         std::string body = raw.substr(pos+4);
@@ -42,22 +53,23 @@ inline std::map<std::string, std::string> ParseHttpHeader(std::string raw) {
 
     for (int i =0; i<raw_header.size(); i++){
         char item = raw_header[i];
-        if (status == ParseMetaStatus::NONE && isalpha(item)) {
-            status = ParseMetaStatus::KEY;
+        if (status == NONE && isalpha(item)) {
+            status = KEY;
             tmp_key.push_back(item);
-        } else if (status == ParseMetaStatus::KEY && item == ':') {
-            status = ParseMetaStatus::BETWEEN;
-        } else if (status == ParseMetaStatus::KEY) {
+        } else if (status == KEY && item == ':') {
+            status = BETWEEN;
+        } else if (status == KEY) {
             tmp_key.push_back(item);
-        } else if (status == ParseMetaStatus::BETWEEN && isLegal(item)) {
-            status = ParseMetaStatus::VALUE;
+        } else if (status == BETWEEN && isLegal(item)) {
+            status = VALUE;
             tmp_value.push_back(item);
-        } else if (status == ParseMetaStatus::VALUE && item == '\r') {
-            status = ParseMetaStatus::NONE;
+        } else if (status == VALUE && item == '\r') {
+            status = NONE;
+            tmp_key = ToLower(tmp_key);
             m.insert(std::pair<std::string, std::string>(tmp_key, tmp_value));
             tmp_key.clear();
             tmp_value.clear();
-        } else if (status == ParseMetaStatus::VALUE) {
+        } else if (status == VALUE) {
             tmp_value.push_back(item);
         }
     }
