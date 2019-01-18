@@ -157,7 +157,7 @@ def get_request_header(id):
 @app.route("/queryHostClientRank", methods=["GET"])
 def query_host_client_rank():
     res = my_table.execute("""
-SELECT request_infos.host as host, COUNT(DISTINCT src) as num FROM request_infos GROUP BY host; 
+SELECT request_infos.host as host, COUNT(DISTINCT src) as num FROM request_infos GROUP BY host ORDER BY COUNT(DISTINCT src) DESC; 
 """)
     res = res.fetchall()
     return jsonify(code=200, msg='', host_ranks=[dict(i) for i in res])
@@ -166,7 +166,7 @@ SELECT request_infos.host as host, COUNT(DISTINCT src) as num FROM request_infos
 @app.route("/queryHostTimeRank", methods=["GET"])
 def query_host_time_rank():
     res = my_table.execute("""
-    SELECT request_infos.host as host, COUNT(*) as num FROM request_infos GROUP BY host;
+    SELECT request_infos.host as host, COUNT(*) as num FROM request_infos GROUP BY host ORDER BY  COUNT(*) DESC;
     """)
     res = res.fetchall()
     return jsonify(code=200, msg='', host_ranks=[dict(i) for i in res])
@@ -205,7 +205,7 @@ def query_client_hour_time(src):
     request_infos = {convert_datetime_to_string(i.created_at): 1 for i in request_infos}
     df = pd.Series(request_infos)
     df.index = pd.to_datetime(df.index)
-    res = df.resample('30min')
+    res = df.resample('15min')
     return jsonify(code=200, msg='', client_time=[dict(time=convert_datetime_to_string(k), num=v) for k,v in res.sum().to_dict().items()])
 
 
