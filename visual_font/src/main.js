@@ -5,7 +5,9 @@ import store from './store'
 import iView from 'iview';
 import 'iview/dist/styles/iview.css';
 import ECharts from 'vue-echarts'
+import chartTheme from './components/charts_theme'
 
+ECharts.registerTheme(chartTheme);
 Vue.config.productionTip = false
 Vue.use(iView);
 // register component to use
