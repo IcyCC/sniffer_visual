@@ -11,6 +11,8 @@
 #include <netinet/tcp.h>
 #include <net/ethernet.h>
 #include <arpa/inet.h>
+#include <cctype>
+#include <algorithm>
 #include "package.h"
 #include "util.h"
 

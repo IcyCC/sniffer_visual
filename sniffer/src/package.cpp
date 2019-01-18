@@ -1,11 +1,9 @@
 //
-// Created by é‘»å¿•æ™  on 2019/1/15.
+// Created by ËÕ³© on 2019/1/15.
 //
 
-#include "package.h"	
-#include <iostream>
-using namespace std;
-
+#include "package.h"
+using namespace std;	
 MYSQL conn;
 
 RequestHeader* InitRequestHeader(RequestHeader * rh){
@@ -17,6 +15,7 @@ RequestHeader* InitRequestHeader(RequestHeader * rh){
 }
 
 RequestInfo* InitRequestInfo(RequestInfo * rh){
+	memset(rh->host,0,sizeof(rh->host));
     bzero(rh->src, sizeof(rh->src));
     bzero(rh->dest,sizeof(rh->dest	));
     return rh;
@@ -39,19 +38,17 @@ void  connection ()
 		printf("connected..\n");
 	}	
 }
-
-
-int SaveRequestInfo(RequestInfo *req)
-{
-    // é”Ÿæ–¤æ‹·ä¸€é”Ÿæ–¤æ‹·RequestInfoé”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿï¿½ é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·id
-    // -1é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·å¤±é”Ÿæ–¤æ‹·
-    // idé”Ÿçš†è®¹æ‹·é”Ÿæ–¤æ‹·æ¶æ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·req
+int SaveRequestInfo(RequestInfo *req){
+    // °ÑÒ»¸öRequestInfo¶ÔÏóÈë¿â ·µ»Øid
+    // -1´ú±íÊ§°Ü
+    // id×Ô¶¯Ìî³äµ½´«ÈëµÄreq
+    
     MYSQL_RES *res;
     MYSQL_ROW row;
     int id;
-    char query[8000]={0};
+    char query[200];
     int t,r;
-    char str[2]={0};
+    char str[2];
 	sprintf(str,"%d",req->type);
 	sprintf(query,"insert into request_infos(src,dest,type,host)values(");
 	strcat(query,"\"");
@@ -107,16 +104,16 @@ int SaveRequestInfo(RequestInfo *req)
 
 
 int SaveRequestHeader(RequestHeader * h){
-    // é”Ÿæ–¤æ‹·ä¸€é”Ÿæ–¤æ‹·RequestHeaderé”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿï¿½ é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·id
-    // -1é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·å¤±é”Ÿæ–¤æ‹·
-    // idé”Ÿçš†è®¹æ‹·é”Ÿæ–¤æ‹·æ¶æ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·req
+    // °ÑÒ»¸öRequestHeader¶ÔÏóÈë¿â ·µ»Øid
+    // -1´ú±íÊ§°Ü
+    // id×Ô¶¯Ìî³äµ½´«ÈëµÄreq
+    
     MYSQL_RES *res;
     MYSQL_ROW row;
-    char query[5000]={0}; 
+    char query[200];
     int t,r;
     int id;
-
-	char str[1000]={0};
+	char str[2];
 	sprintf(str,"%d",h->request_id);
 	sprintf(query,"insert into request_headers(request_id,header_key,header_value)values(");
 	strcat(query,str);
@@ -134,7 +131,6 @@ int SaveRequestHeader(RequestHeader * h){
 	if(t)
 	{
 	    cout<<"Error:"<<mysql_error(&conn);
-		return -1;
 	
 	}
 	else
@@ -165,5 +161,5 @@ int SaveRequestHeader(RequestHeader * h){
 	mysql_free_result(res);
 	}
 	return id;
- 
+    
 };
