@@ -62,6 +62,10 @@
               <Icon type="ios-barcode" />
                 兴趣热点分析
             </MenuItem>
+            <MenuItem name="hot_host">
+              <Icon type="ios-analytics-outline" />
+              主机热点分析
+            </MenuItem>
           </div>
         </Menu>
       </Header>

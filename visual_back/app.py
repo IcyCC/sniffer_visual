@@ -157,7 +157,7 @@ def get_request_header(id):
 @app.route("/queryHostClientRank", methods=["GET"])
 def query_host_client_rank():
     res = my_table.execute("""
-SELECT request_infos.host as host, COUNT(DISTINCT src) as num FROM request_infos GROUP BY host; 
+SELECT request_infos.host as host, COUNT(DISTINCT src) as num FROM request_infos GROUP BY host ORDER BY COUNT(DISTINCT src) DESC; 
 """)
     res = res.fetchall()
     return jsonify(code=200, msg='', host_ranks=[dict(i) for i in res])
@@ -166,7 +166,7 @@ SELECT request_infos.host as host, COUNT(DISTINCT src) as num FROM request_infos
 @app.route("/queryHostTimeRank", methods=["GET"])
 def query_host_time_rank():
     res = my_table.execute("""
-    SELECT request_infos.host as host, COUNT(*) as num FROM request_infos GROUP BY host;
+    SELECT request_infos.host as host, COUNT(*) as num FROM request_infos GROUP BY host ORDER BY  COUNT(*) DESC;
     """)
     res = res.fetchall()
     return jsonify(code=200, msg='', host_ranks=[dict(i) for i in res])
@@ -184,7 +184,7 @@ def query_client_rank():
 @app.route("/client_src", methods=["GET"])
 def query_client_src():
     src_like = request.args.get('_like_src', '')
-    sql = select([distinct(my_table.request_infos.c.src)]).where(my_table.request_infos.c.src.like("%" + src_like))
+    sql = select([distinct(my_table.request_infos.c.src)]).where(my_table.request_infos.c.src.like(src_like+"%" ))
     sql = sql.limit(30)
     res = my_table.execute(sql).fetchall()
     return jsonify(code=200, msg='', client_srcs=[dict(i) for i in res])
@@ -205,8 +205,37 @@ def query_client_hour_time(src):
     request_infos = {convert_datetime_to_string(i.created_at): 1 for i in request_infos}
     df = pd.Series(request_infos)
     df.index = pd.to_datetime(df.index)
-    res = df.resample('30min')
+    res = df.resample('15min')
     return jsonify(code=200, msg='', client_time=[dict(time=convert_datetime_to_string(k), num=v) for k,v in res.sum().to_dict().items()])
+
+
+@app.route("/host_src", methods=["GET"])
+def query_host_src():
+    host_like = request.args.get('_like_host', '')
+    sql = select([distinct(my_table.request_infos.c.host)]).where(my_table.request_infos.c.host.like( "%"+host_like+"%"))
+    sql = sql.limit(30)
+    res = my_table.execute(sql).fetchall()
+    return jsonify(code=200, msg='', host_srcs=[dict(i) for i in res])
+
+
+@app.route("/queryHostClientRank/<string:host>", methods=["GET"])
+def query_host_clint_ranks(host):
+    res = my_table.execute(text("""
+    SELECT request_infos.src as src, COUNT(*) as num FROM request_infos WHERE host = :host GROUP BY src;
+    """), host=host)
+    res = res.fetchall()
+    return jsonify(code=200, msg='', host_clients=[dict(i) for i in res])
+
+
+@app.route("/queryHostHourTime/<string:host>", methods=["GET"])
+def query_host_hour_time(host):
+    request_infos = comm_query("request_infos", {'host': [host]}, None, {'_order_by': 'id', '_desc': False})
+    request_infos = {convert_datetime_to_string(i.created_at): 1 for i in request_infos}
+    df = pd.Series(request_infos)
+    df.index = pd.to_datetime(df.index)
+    res = df.resample('15min')
+    return jsonify(code=200, msg='', host_time=[dict(time=convert_datetime_to_string(k), num=v) for k,v in res.sum().to_dict().items()])
+
 
 
 if __name__ == '__main__':
