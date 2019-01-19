@@ -47,3 +47,19 @@ export const queryClientHourTime =(src)=>{
         return Promise.reject()
     }
 }
+
+export const queryHostSrcLike = (host) =>{
+    return axios.get('/api/host_src', {params: {'_like_host':host}})
+}
+
+export const queryHostCLientRanks = (host) =>{
+    return axios.get('/api/queryHostClientRank/'+host)
+}
+
+export const queryHostHourTime =(host)=>{
+    if (host){
+        return axios.get('/api/queryHostHourTime/'+host)
+    } else {
+        return Promise.reject()
+    }
+}

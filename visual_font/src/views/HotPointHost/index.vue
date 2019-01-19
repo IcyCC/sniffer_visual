@@ -4,15 +4,15 @@
             <Row>
                 <Col span="8">
                             <span>
-                                客户端:
+                                服务端:
                        <Select filterable
                                    clearable
                                    @on-query-change="handleSrcQueryChange"
-                                   :value="this.select_src"
+                                   :value="this.select_host"
                                    @on-change="handleSelectSrcChange"
                                @on-clear="handleSelectSrcClear"
                                style="width: 260px">
-                        <Option v-for="item in src_list" :value="item.src" :key="item.src">{{ item.src }}</Option>
+                        <Option v-for="item in host_list" :value="item.host" :key="item.host">{{ item.host }}</Option>
                     </Select>
                             </span>
                 </Col>
@@ -29,8 +29,8 @@
             </Tabs>
             <div>
                 <div v-if="select_tab === 'hot' ">
-                    <div v-if="client_host.length" style="height: 450px">
-                        <Pie title="请求分布" :series="client_host"></Pie>
+                    <div v-if="host_client.length" style="height: 450px">
+                        <Pie title="请求分布" :series="host_client"></Pie>
                     </div>
                     <div v-else>
                         <span>暂无数据</span>
@@ -52,57 +52,57 @@
 <script>
     import Pie from '@/components/pie'
     import LineT from '../../components/time_line'
-    import {queryClientSrcLike,queryCLientHostRanks,queryClientHourTime} from 'API'
+    import {queryHostSrcLike,queryHostCLientRanks,queryHostHourTime} from 'API'
 
     export default {
         components: {Pie,LineT},
         name: "HotPoint",
         data: function () {
             return {
-                select_src: '',
-                src_like: '',
-                src_list: [],
-                client_host: [],
+                select_host: '',
+                host_like: '',
+                host_list: [],
+                host_client: [],
                 select_tab: 'hot',
                 line_data:{}
             }
         },
         methods: {
             fetchClientSrcLike: function () {
-                return queryClientSrcLike(this.src_like).then((resp) => {
-                    this.src_list = resp.data.client_srcs
+                return queryHostSrcLike(this.host_like).then((resp) => {
+                    this.host_list = resp.data.host_srcs
                 })
             },
             fetchClientHostRanks: function(){
-                return queryCLientHostRanks(this.select_src).then((resp)=>{
-                    this.client_host = resp.data.client_hosts.map((item)=>{
+                return queryHostCLientRanks(this.select_host).then((resp)=>{
+                    this.host_client = resp.data.host_clients.map((item)=>{
                         return {
-                            name: item.host,
+                            name: item.src,
                             value: item.num
                         }
                     })
                 })
             },
             fetchClientHourTime: function(){
-                return queryClientHourTime(this.select_src).then((resp)=>{
+                return queryHostHourTime(this.select_host).then((resp)=>{
                     this.line_data = {}
-                    this.line_data[this.select_src] = resp.data.client_time.map((item)=>{
+                    this.line_data[this.select_host] = resp.data.host_time.map((item)=>{
                         return [item.time, item.num]
                     })
                 })
             },
-            handleSrcQueryChange: function (src_like) {
-                this.src_like = src_like
+            handleSrcQueryChange: function (host_like) {
+                this.host_like = host_like
                 this.fetchClientSrcLike()
             },
             handleSelectSrcClear:function(){
                 for(let key in this.line_data){
                     delete this.line_data[key]
                 }
-                this.client_host= []
+                this.host_client= []
             },
             handleSelectSrcChange: function (v) {
-                this.select_src = v
+                this.select_host = v
                 this.fetchClientHostRanks()
                 this.fetchClientHourTime()
             },

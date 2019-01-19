@@ -25,6 +25,11 @@ export default new Router({
                     path: '/hot_point',
                     name: 'hot_point',
                     component: () => import('@/views/HotPointClient')
+                },
+                {
+                    path: '/hot_host',
+                    name: 'hot_host',
+                    component: () => import('@/views/HotPointHost')
                 }
             ]
         },
