@@ -1,28 +1,28 @@
 #include "sniffer.h"
-
+#include "package.h"
 using namespace std;
 
 /*Display IP Header*/
 
-void show_iphdr(struct iphdr *ip, struct RequestInfo * reqinfo)
+void show_iphdr(struct iphdr *ip, struct RequestInfo * reqinfo,std::string & host)
 {
     struct in_addr addr;
-    addr.s_addr=ip->saddr;
+    addr.s_addr = ip->saddr;
     strcpy(reqinfo->src,inet_ntoa(addr));
     printf("saddr: %s\n", reqinfo->src);
 
-    addr.s_addr= ip->saddr;
+    addr.s_addr = ip->saddr;
     strcpy(reqinfo->dest,inet_ntoa(addr));
     printf("daddr: %s\n", reqinfo->dest);
     reqinfo->type = 1;
+    strcpy(reqinfo->host,host.c_str());
     SaveRequestInfo(reqinfo);
 }
 
-int prase_packet(const u_char *buf,  int caplen,  struct RequestInfo* reqinfo)
+int prase_packet(const u_char *buf,  int caplen,  struct RequestInfo* reqinfo,std::string & host)
 {
     uint16_t e_type;
     uint32_t offset;
-    int payload_len;
     
     struct ethhdr *eth = NULL;
     eth = (struct ethhdr *)buf;
@@ -39,9 +39,7 @@ int prase_packet(const u_char *buf,  int caplen,  struct RequestInfo* reqinfo)
     }   
 
     struct iphdr *ip = (struct iphdr *)(buf + offset);
-    e_type = ntohs(ip->protocol);
-    offset += sizeof(struct iphdr); 
-    show_iphdr(ip,reqinfo);
+    show_iphdr(ip,reqinfo,host);
      
     if(ip->protocol != IPPROTO_TCP) 
     {
@@ -51,6 +49,17 @@ int prase_packet(const u_char *buf,  int caplen,  struct RequestInfo* reqinfo)
     return 0;
 }
 
+std::string findHost(std::map<std::string, std::string>& key_value)
+{
+    std::map<std::string, std::string>::iterator iter;
+    iter = key_value.find("host");
+    if (iter != key_value.end())
+    {
+
+        return iter->second;
+    }     
+    return "";
+}   
 
 /*用于回调函数，打印payload*/
 void processPacket(u_char *arg, const struct pcap_pkthdr* pkthdr, const u_char * packet)
@@ -58,38 +67,36 @@ void processPacket(u_char *arg, const struct pcap_pkthdr* pkthdr, const u_char *
 
     struct RequestInfo reqinfo;
     InitRequestInfo(&reqinfo );
-    struct ether_header *ethernet;
-    struct iphdr *ip;
-    struct tcphdr *tcp;
-    const char *payload;
+
+    const char *payload = NULL;
     struct RequestHeader reqhdl;
     InitRequestHeader(&reqhdl);
-    int i=0, *counter = (int *)arg; 
 
-    ethernet = (struct ether_header*)(packet);
-    ip = (struct iphdr*)(packet + ETHER_HDR_LEN);
-    tcp = (struct tcphdr*)(packet + ETHER_HDR_LEN+ sizeof(struct iphdr));
+    std::string host = "";        //接收payload中的host字段
+
     payload = (char *)(packet + ETHER_HDR_LEN + sizeof(struct iphdr) + sizeof(struct tcphdr)); 
-    const char *temp;
+    //const char *temp = NULL;
 
     if(strstr(payload,"HTTP") != NULL)     
     {
-        temp = payload;
-        //写入数据库
-        prase_packet(packet, pkthdr->len,&reqinfo );
+        //temp = payload;
         std::map<std::string, std::string> key_value;
         std::map<std::string, std::string>::iterator iter;
-        key_value = ParseHttpHeader(temp);
-        for(auto iter = key_value.begin(); iter != key_value.end(); iter++) 
+        key_value = ParseHttpHeader(payload);
+        host = findHost(key_value);
+        if(host != "")
         {
+            prase_packet(packet, pkthdr->len,&reqinfo,host);
 
-            strcpy(reqhdl.header_key,iter->first.c_str());
-            strcpy(reqhdl.header_value,iter->second.c_str());
-            printf("key: %s\t value: %s\n", reqhdl.header_key,reqhdl.header_value);
-            reqhdl.request_id = reqinfo.id;
-            SaveRequestHeader(&reqhdl);
+            for(iter = key_value.begin(); iter != key_value.end(); iter++) 
+            { 
+                strcpy(reqhdl.header_key,iter->first.c_str());              
+                strcpy(reqhdl.header_value,iter->second.c_str());
+                printf("key: %s\t value: %s\n", reqhdl.header_key,reqhdl.header_value);
+                reqhdl.request_id = reqinfo.id;
+                SaveRequestHeader(&reqhdl);
+            }
         }
- 
     }
     return;
 } 
